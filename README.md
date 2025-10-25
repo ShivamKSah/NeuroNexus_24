@@ -6,9 +6,6 @@
 
 **A Smart, Interactive, and Emotionally-Aware Hospital Management Platform**
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Web-blue)](https://github.com)
-
 ## 🏥 Hackathon Pitch
 
 Welcome to the future of healthcare management! The SRM Hospital Supporter System is a revolutionary platform that transforms how hospitals operate, doctors diagnose, nurses care, and patients heal. Our system seamlessly integrates AI-powered insights with intuitive workflows to create a truly smart hospital ecosystem.
