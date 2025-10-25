@@ -8,7 +8,6 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Web-blue)](https://github.com)
-[![AI Powered](https://img.shields.io/badge/AI-Gemini%20API-brightgreen)](https://ai.google.dev/)
 
 ## 🏥 Hackathon Pitch
 
