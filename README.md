@@ -1,10 +1,10 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
-
 # SRM Hospital Supporter System
 
 **A Smart, Interactive, and Emotionally-Aware Hospital Management Platform**
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Web-blue)](https://github.com)
+[![AI Powered](https://img.shields.io/badge/AI-Gemini%20API-brightgreen)](https://ai.google.dev/)
 
 ## 🏥 Hackathon Pitch
 
