@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { TriageAnalysis } from "../types";
 
-const API_KEY = process.env.API_KEY;
+const API_KEY = process.env.API_KEY || process.env.GEMINI_API_KEY;
 
 console.log("API_KEY environment variable:", API_KEY ? "SET" : "NOT SET");
 if (API_KEY) {
@@ -9,15 +9,15 @@ if (API_KEY) {
 }
 
 if (!API_KEY) {
-    console.warn("Gemini API key not found. Please set the API_KEY environment variable.");
+    console.warn("Gemini API key not found. Please set the API_KEY environment variable. Mock data will be used.");
 }
 
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const ai = API_KEY ? new GoogleGenAI({ apiKey: API_KEY }) : null;
 
 export async function generateSummary(notes: string): Promise<string> {
   console.log("generateSummary called with API_KEY:", API_KEY ? "SET" : "NOT SET");
   
-  if (!API_KEY) {
+  if (!ai || !API_KEY) {
     return Promise.resolve(`Error: Gemini API key is not configured. Displaying mock data.
 
 **Comprehensive Patient Analysis - Examiner Report**
@@ -86,7 +86,7 @@ This analysis is based on the available patient data and should be used in conju
 export async function calculateTriageRisk(complaint: string, age: number, gender: string): Promise<TriageAnalysis> {
   console.log("calculateTriageRisk called with API_KEY:", API_KEY ? "SET" : "NOT SET");
   
-  if (!API_KEY) {
+  if (!ai || !API_KEY) {
     console.log("Using mock triage analysis due to missing API key.");
     const mockScore = Math.floor(Math.random() * 60) + 30;
     return Promise.resolve({
@@ -145,7 +145,7 @@ export async function recommendDepartment(
 ): Promise<{ department: string; explanation: string }> {
   console.log("recommendDepartment called with API_KEY:", API_KEY ? "SET" : "NOT SET");
   
-  if (!API_KEY) {
+  if (!ai || !API_KEY) {
     // Mock response when API key is not set
     const mockDepartments = [
       "General Medicine",

@@ -15,10 +15,26 @@ import {
     FlaskIcon,
     AmbulanceIcon,
     CogIcon,
-    InternIcon
+    InternIcon,
+    BrainIcon,
+    PulseIcon,
+    ShieldAlertIcon,
+    PlayIcon
 } from './components/icons';
 
 export const navStructure: NavCategoryType[] = [
+    {
+        category: 'Clinical Intelligence (ICU)',
+        icon: BrainIcon,
+        items: [
+            { id: 'ci_icu_warning', label: 'ICU Early Warning', icon: BrainIcon },
+            { id: 'ci_replay', label: 'Chronological Replay', icon: PlayIcon },
+            { id: 'ci_alerts', label: 'Alert Center & Audit Log', icon: ShieldAlertIcon },
+            { id: 'ci_model_performance', label: 'Model Performance & Benchmark', icon: BrainIcon },
+            { id: 'ci_alert_analytics', label: 'Alert Analytics & Fatigue', icon: ShieldAlertIcon },
+            { id: 'ci_data_quality', label: 'Telemetry Data Quality', icon: PulseIcon },
+        ]
+    },
     {
         category: 'Main',
         icon: FolderIcon,

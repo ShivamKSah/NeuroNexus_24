@@ -11,6 +11,7 @@ export type ReceptionistView =
 
 export type DoctorView =
     'dashboard' |
+    'icu_early_warning' |
     'departments' |
     'neurology' |
     'dermatology' |
@@ -301,3 +302,87 @@ export interface QualityMetric {
     target: string;
     trend: 'up' | 'down' | 'stable';
 }
+
+// ==========================================
+// Clinical Intelligence & ICU Early Warning
+// ==========================================
+
+export type ICUAlertSeverity = 'MONITOR' | 'HIGH' | 'CRITICAL';
+export type ICUAlertStatus = 'NEW' | 'ACKNOWLEDGED' | 'RESOLVED' | 'SUPPRESSED';
+
+export interface ContributingSignal {
+  signal: string;
+  value: string;
+  trend: string;
+  category: 'Hemodynamic' | 'Respiratory' | 'Neurological' | 'Metabolic' | 'Renal' | 'General';
+}
+
+export interface ICUDataQuality {
+  overall_score: number;
+  status: 'EXCELLENT' | 'GOOD' | 'MODERATE' | 'LOW_QUALITY' | 'INSUFFICIENT_DATA';
+  active_signals_count: number;
+  freshness_score: number;
+  coverage_score: number;
+  signal_freshness: Record<string, string>;
+}
+
+export interface ICUTrajectoryPoint {
+  time_hours: number;
+  risk_score: number;
+  risk_percentage: number;
+  severity: 'LOW' | 'MONITOR' | 'HIGH' | 'CRITICAL';
+  data_quality: number;
+  contributing_signals: string[];
+}
+
+export interface RawObservation {
+  time_hours: number;
+  parameter: string;
+  value: number;
+  is_valid?: boolean;
+}
+
+export interface ICUPatientRecord {
+  record_id: string;
+  bed_id: string;
+  age: number;
+  gender: string;
+  icu_type: string;
+  outcome: string;
+  is_death: number;
+  total_observations: number;
+  telemetry_duration_hours: number;
+  observations: RawObservation[];
+  trajectory: ICUTrajectoryPoint[];
+  final_risk_score: number;
+  final_severity: 'LOW' | 'MONITOR' | 'HIGH' | 'CRITICAL';
+}
+
+export interface ICUAlert {
+  id: string;
+  patientId: string;
+  bedId: string;
+  timestamp: string;
+  simulationTimeHours?: number;
+  severity: 'HIGH' | 'CRITICAL';
+  riskScore: number;
+  confidence: number;
+  status: ICUAlertStatus;
+  contributingSignals: ContributingSignal[];
+  explanation: string;
+  dataQuality: number;
+  modelVersion: string;
+  acknowledgedBy?: string;
+  acknowledgedAt?: string;
+  resolvedBy?: string;
+  resolvedAt?: string;
+}
+
+export interface ICUAuditLog {
+  id: string;
+  userId: string;
+  action: 'ALERT_VIEWED' | 'ALERT_ACKNOWLEDGED' | 'ALERT_RESOLVED' | 'PATIENT_OPENED' | 'PREDICTION_GENERATED' | 'REPLAY_STARTED' | 'REPLAY_RESET';
+  patientId: string;
+  timestamp: string;
+  metadata?: Record<string, any>;
+}

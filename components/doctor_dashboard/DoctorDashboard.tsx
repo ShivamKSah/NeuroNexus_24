@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Patient, Doctor } from '../../types';
+import type { Patient, Doctor, DoctorView } from '../../types';
 import { DoctorSidebar } from './DoctorSidebar';
 import { Header } from '../Header';
 import { ArrowLeftIcon } from '../icons';
@@ -26,6 +26,8 @@ import { AnalyticsView } from './views/AnalyticsView';
 import { SettingsProfileView } from './views/SettingsProfileView';
 import { HelpView } from './views/HelpView';
 
+import { ICUEarlyWarningView, PatientRiskDetailView } from '../clinical_intelligence';
+
 interface DoctorDashboardProps {
     onLogout: () => void;
     userRole: string;
@@ -40,8 +42,9 @@ interface DoctorDashboardProps {
 
 export const DoctorDashboard: React.FC<DoctorDashboardProps> = (props) => {
     const { onLogout, userRole, doctor, patients, doctors, onAddPrescription } = props;
-    const [activeView, setActiveView] = useState<'dashboard' | 'patient_list' | 'patient_detail' | 'ventilator_monitor' | 'prescriptions' | 'patient_reports' | 'case_history' | 'tests_results' | 'diagnostic_tools' | 'current_status' | 'treatment_module' | 'appointments_schedule' | 'messaging' | 'notifications' | 'inventory_equipment' | 'billing_insurance' | 'analytics_reports' | 'settings_profile' | 'help_documentation' | 'cardiology' | 'neurology' | 'orthopedics' | 'emergency' | 'general_medicine' | 'pediatrics' | 'gynecology' | 'dermatology' | 'surgery_medicine'>('dashboard');
+    const [activeView, setActiveView] = useState<DoctorView>('dashboard');
     const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+    const [selectedICUPatientId, setSelectedICUPatientId] = useState<string>('132588');
 
     const myPatients = patients.filter(p => p.assignedDoctorId === doctor.id);
 
@@ -59,6 +62,7 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = (props) => {
     const getHeaderTitle = () => {
         const viewTitles: Record<string, string> = {
             'dashboard': 'Dashboard Overview',
+            'icu_early_warning': 'ICU Clinical Intelligence & Early Deterioration Warning',
             'patient_list': 'Patient List',
             'patient_detail': selectedPatient ? `Patient: ${selectedPatient.name}` : 'Patient Details',
             'ventilator_monitor': 'Live Vitals Monitoring',
@@ -94,6 +98,17 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = (props) => {
     const renderContent = () => {
         switch (activeView) {
             case 'dashboard': return <DashboardView onPatientSelect={handlePatientSelect} />;
+            case 'icu_early_warning': 
+                return <ICUEarlyWarningView 
+                    onSelectPatient={(pid) => {
+                        setSelectedICUPatientId(pid);
+                        setActiveView('patient_detail');
+                    }}
+                    onLaunchReplay={(pid) => {
+                        if (pid) setSelectedICUPatientId(pid);
+                        setActiveView('ventilator_monitor');
+                    }}
+                />;
             case 'patient_list': return <PatientListView patients={myPatients} onSelectPatient={handlePatientSelect} />;
             case 'ventilator_monitor': return <LiveVentilatorView patients={myPatients} />;
             case 'prescriptions': return <PrescriptionView doctorName={doctor.name} onAddPrescription={onAddPrescription} patients={myPatients} />;

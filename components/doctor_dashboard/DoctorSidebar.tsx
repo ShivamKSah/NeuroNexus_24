@@ -21,7 +21,8 @@ import {
     CreditCardIcon,
     ChartBarIcon,
     UserIcon,
-    QuestionMarkCircleIcon
+    QuestionMarkCircleIcon,
+    BrainIcon
 } from '../icons';
 import { TriageRiskBadge } from '../TriageRiskBadge';
 
@@ -36,6 +37,7 @@ interface DoctorSidebarProps {
 const navItems = {
     main: [
         { id: 'dashboard', label: 'Dashboard', icon: DashboardIcon },
+        { id: 'icu_early_warning', label: 'ICU Early Warning (AI)', icon: BrainIcon },
         { id: 'patient_list', label: 'Patient List', icon: PatientsIcon },
         { id: 'patient_reports', label: 'Patient Reports', icon: DocumentTextIcon },
         { id: 'ventilator_monitor', label: 'Vitals Monitoring', icon: HeartbeatIcon },
@@ -69,49 +71,31 @@ const navItems = {
     ]
 } as const;
 
-
 type NavItemType = (typeof navItems.main)[number] | (typeof navItems.clinical)[number] | (typeof navItems.departments)[number] | (typeof navItems.support)[number];
 
 const NavItem: React.FC<{
     item: NavItemType;
     isActive: boolean;
     onClick: () => void;
-    patientCount?: number; // Add patient count prop
+    patientCount?: number;
 }> = ({ item, isActive, onClick, patientCount }) => {
     const { icon: Icon, label } = item;
-    const baseClasses = "flex items-center w-full text-left px-4 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200";
-    const activeClasses = "bg-srm-lightblue text-srm-blue";
-    const inactiveClasses = "text-white hover:bg-white/20";
+    const baseClasses = "flex items-center w-full text-left px-3.5 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 cursor-pointer";
+    const activeClasses = "bg-blue-600 text-white shadow-xs font-semibold";
+    const inactiveClasses = "text-slate-300 hover:text-white hover:bg-white/10";
 
     return (
         <li>
             <button onClick={onClick} className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}>
-                <Icon className="h-5 w-5 mr-3 flex-shrink-0" />
-                <span className="flex-grow">{label}</span>
+                <div className="w-5 h-5 mr-3 flex-shrink-0 flex items-center justify-center">
+                    <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                </div>
+                <span className="flex-grow truncate">{label}</span>
                 {patientCount !== undefined && patientCount > 0 && (
-                    <span className="bg-srm-blue/30 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    <span className="bg-blue-500/30 text-blue-200 text-xs font-bold px-2 py-0.5 rounded-full ml-2">
                         {patientCount}
                     </span>
                 )}
-            </button>
-        </li>
-    );
-};
-
-const PatientItem: React.FC<{
-    patient: Patient;
-    isActive: boolean;
-    onClick: () => void;
-}> = ({ patient, isActive, onClick }) => {
-    const baseClasses = "flex items-center w-full text-left px-4 py-2 text-sm rounded-lg transition-colors duration-200 ml-4";
-    const activeClasses = "bg-srm-lightblue text-srm-blue";
-    const inactiveClasses = "text-white hover:bg-white/20";
-
-    return (
-        <li>
-            <button onClick={onClick} className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}>
-                <span className="flex-grow truncate">{patient.name}</span>
-                <TriageRiskBadge risk={patient.triageInfo.risk} />
             </button>
         </li>
     );
@@ -129,100 +113,32 @@ const NavCategory: React.FC<{
         <div>
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-between w-full px-2 py-2 text-sm font-semibold text-white/80 hover:text-white transition-colors"
+                className="flex items-center justify-between w-full px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
             >
                 <div className="flex items-center">
-                    <Icon className="h-5 w-5 mr-3"/>
+                    <div className="w-4 h-4 mr-2.5 flex-shrink-0 flex items-center justify-center">
+                        <Icon className="w-4 h-4 text-slate-400"/>
+                    </div>
                     <span>{title}</span>
                 </div>
-                <ChevronDownIcon className={`h-5 w-5 transform transition-transform ${isOpen ? '' : '-rotate-90'}`} />
+                <ChevronDownIcon className={`w-4 h-4 transform transition-transform ${isOpen ? '' : '-rotate-90'}`} />
             </button>
-            {isOpen && <div className="mt-1 pl-4 border-l border-white/20 ml-4">{children}</div>}
+            {isOpen && <div className="mt-1 pl-3 border-l border-white/10 ml-4">{children}</div>}
         </div>
     );
 };
-
-const DepartmentCategory: React.FC<{
-    title: string;
-    icon: React.ElementType;
-    patients: Patient[];
-    activeView: DoctorView;
-    setActiveView: (view: DoctorView) => void;
-    departmentId: string;
-    patientCounts: Record<string, number>;
-}> = ({ title, icon: Icon, patients, activeView, setActiveView, departmentId, patientCounts }) => {
-    const [isOpen, setIsOpen] = useState(true);
-    const departmentPatients = patients.filter(p => p.department === title);
-
-    return (
-        <div>
-            <button 
-                onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-between w-full px-2 py-2 text-sm font-semibold text-white/80 hover:text-white transition-colors"
-            >
-                <div className="flex items-center">
-                    <Icon className="h-5 w-5 mr-3"/>
-                    <span>{title}</span>
-                    {patientCounts[title] !== undefined && patientCounts[title] > 0 && (
-                        <span className="bg-srm-blue/30 text-white text-xs font-bold px-2 py-1 rounded-full ml-2">
-                            {patientCounts[title]}
-                        </span>
-                    )}
-                </div>
-                <ChevronDownIcon className={`h-5 w-5 transform transition-transform ${isOpen ? '' : '-rotate-90'}`} />
-            </button>
-            {isOpen && (
-                <div className="mt-1 pl-4 border-l border-white/20 ml-4">
-                    <ul className="space-y-1 py-1">
-                        <li>
-                            <button 
-                                onClick={() => setActiveView(departmentId as DoctorView)}
-                                className={`flex items-center w-full text-left px-4 py-2 text-sm rounded-lg transition-colors duration-200 ${
-                                    activeView === departmentId ? 'bg-srm-lightblue text-srm-blue' : 'text-white hover:bg-white/20'
-                                }`}
-                            >
-                                <span className="flex-grow">All Patients</span>
-                            </button>
-                        </li>
-                        {departmentPatients.map(patient => (
-                            <PatientItem
-                                key={patient.id}
-                                patient={patient}
-                                isActive={false}
-                                onClick={() => {
-                                    // This would need to be implemented to show patient details
-                                    // For now, we'll just navigate to the department view
-                                    setActiveView(departmentId as DoctorView);
-                                }}
-                            />
-                        ))}
-                    </ul>
-                </div>
-            )}
-        </div>
-    );
-};
-
 
 export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ activeView, setActiveView, doctors, patients, currentDoctorId }) => {
-    // Calculate patient counts for each department
     const departmentPatientCounts: Record<string, number> = {};
     
-    // Get current doctor's department
-    const currentDoctor = doctors.find(d => d.id === currentDoctorId);
-    const currentDoctorDepartment = currentDoctor?.department || '';
-    
-    // Count patients in each department
     patients.forEach(patient => {
         if (patient.department) {
             departmentPatientCounts[patient.department] = (departmentPatientCounts[patient.department] || 0) + 1;
         }
     });
     
-    // Count patients assigned to current doctor
     const myPatientCount = patients.filter(p => p.assignedDoctorId === currentDoctorId).length;
     
-    // Define all departments with their IDs
     const allDepartments = [
         { id: 'cardiology', label: 'Cardiology', icon: DocumentTextIcon },
         { id: 'neurology', label: 'Neurology', icon: DocumentTextIcon },
@@ -233,16 +149,13 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ activeView, setAct
         { id: 'gynecology', label: 'Gynecology', icon: DocumentTextIcon },
     ];
     
-    console.log('Total patients:', patients.length);
-    console.log('Department patient counts:', departmentPatientCounts);
-    console.log('All departments:', allDepartments);
-    
     return (
-        <aside className="w-72 bg-srm-blue text-white flex flex-col flex-shrink-0">
-            <div className="h-20 flex items-center justify-center px-4 border-b border-white/20">
-                <h1 className="text-xl font-bold tracking-wider">Doctor's Portal</h1>
+        <aside className="w-72 bg-[#0B1E33] text-white flex flex-col flex-shrink-0 border-r border-slate-800">
+            <div className="h-20 flex flex-col items-center justify-center px-4 border-b border-white/10">
+                <h1 className="text-xl font-black tracking-wider text-white">Doctor's Portal</h1>
+                <span className="text-[10px] tracking-widest uppercase font-semibold text-blue-300">SRM Trichy Medical</span>
             </div>
-            <nav className="flex-1 px-2 py-4 overflow-y-auto">
+            <nav className="flex-1 px-3 py-4 overflow-y-auto space-y-4">
                 <ul className="space-y-4">
                     {/* Main Section */}
                     <li>
@@ -261,13 +174,15 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ activeView, setAct
 
                     {/* Departments Section */}
                     <li>
-                        <div className="flex items-center justify-between w-full px-2 py-2 text-sm font-semibold text-white/80">
+                        <div className="flex items-center justify-between w-full px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
                             <div className="flex items-center">
-                                <ClinicalIcon className="h-5 w-5 mr-3"/>
+                                <div className="w-4 h-4 mr-2.5 flex-shrink-0 flex items-center justify-center">
+                                    <ClinicalIcon className="w-4 h-4 text-slate-400"/>
+                                </div>
                                 <span>Departments</span>
                             </div>
                         </div>
-                        <div className="mt-1 pl-4 border-l border-white/20 ml-4">
+                        <div className="mt-1 pl-3 border-l border-white/10 ml-4">
                             <ul className="space-y-1 py-1">
                                 {allDepartments.map(dept => (
                                     <NavItem

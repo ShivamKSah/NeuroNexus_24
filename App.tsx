@@ -35,6 +35,18 @@ import {
 import { NurseDashboard } from './components/nurse';
 import type { WardBed } from './types';
 
+// Clinical Intelligence Components
+import {
+    ICUEarlyWarningView,
+    PatientRiskDetailView,
+    DemoReplayView,
+    AlertCenterView,
+    ModelPerformanceView,
+    AlertAnalyticsView,
+    DataQualityDashboardView
+} from './components/clinical_intelligence';
+
+
 // Simulate a secure hashing mechanism. In a real application, use a library like bcrypt.
 const FAKE_SALT = 'srm-hospital-supporter-system';
 
@@ -63,12 +75,23 @@ const comparePassword = (password: string, hash: string): boolean => {
 
 
 const HisSuite: React.FC<{ onLogout: () => void; userRole: string }> = ({ onLogout, userRole }) => {
-  const [activeView, setActiveView] = useState<View>(userRole === 'Intern' ? 'intern_dashboard' : 'dashboard');
+  const [activeView, setActiveView] = useState<View>(userRole === 'Intern' ? 'intern_dashboard' : 'ci_icu_warning');
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(mockPatients[0]);
+  const [selectedICUPatientId, setSelectedICUPatientId] = useState<string>('132588');
 
   const handlePatientSelect = useCallback((patient: Patient) => {
     setSelectedPatient(patient);
     setActiveView('patient');
+  }, []);
+
+  const handleSelectICUPatient = useCallback((recordId: string) => {
+    setSelectedICUPatientId(recordId);
+    setActiveView('ci_patient_risk');
+  }, []);
+
+  const handleLaunchReplay = useCallback((recordId?: string) => {
+    if (recordId) setSelectedICUPatientId(recordId);
+    setActiveView('ci_replay');
   }, []);
   
   const handleViewChange = useCallback((view: View) => {
@@ -82,14 +105,51 @@ const HisSuite: React.FC<{ onLogout: () => void; userRole: string }> = ({ onLogo
     if (activeView === 'patient' && selectedPatient) {
         return `Patient Overview: ${selectedPatient.name}`;
     }
+    if (activeView === 'ci_patient_risk') {
+        return `ICU Deterioration Risk Trajectory (Record #${selectedICUPatientId})`;
+    }
+    if (activeView === 'ci_icu_warning') {
+        return 'ICU Clinical Intelligence & Early Deterioration Warning';
+    }
+    if (activeView === 'ci_replay') {
+        return 'Chronological Telemetry Stream & Replay Simulation';
+    }
+    if (activeView === 'ci_alerts') {
+        return 'ICU Alert Center & Clinical Action Log';
+    }
+    if (activeView === 'ci_model_performance') {
+        return 'ML Model Architecture, Validation & Benchmarks';
+    }
+    if (activeView === 'ci_alert_analytics') {
+        return 'Alert Analytics & Alarm Fatigue Control';
+    }
+    if (activeView === 'ci_data_quality') {
+        return 'ICU Telemetry Data Quality & Missingness Analysis';
+    }
     
     const allItems = navStructure.flatMap(cat => cat.items);
     const currentModule = allItems.find(item => item.id === activeView);
-    return currentModule ? currentModule.label : "SRM Hospital Information System";
+    return currentModule ? currentModule.label : "NeuroNexus — Hospital Management + Clinical Intelligence";
   }
 
   const renderContent = () => {
     switch (activeView) {
+      // Clinical Intelligence Views
+      case 'ci_icu_warning':
+        return <ICUEarlyWarningView onSelectPatient={handleSelectICUPatient} onLaunchReplay={handleLaunchReplay} onNavigateTab={handleViewChange} />;
+      case 'ci_patient_risk':
+        return <PatientRiskDetailView patientId={selectedICUPatientId} onBack={() => setActiveView('ci_icu_warning')} onLaunchReplay={handleLaunchReplay} />;
+      case 'ci_replay':
+        return <DemoReplayView initialPatientId={selectedICUPatientId} onNavigateToPatient={handleSelectICUPatient} />;
+      case 'ci_alerts':
+        return <AlertCenterView />;
+      case 'ci_model_performance':
+        return <ModelPerformanceView />;
+      case 'ci_alert_analytics':
+        return <AlertAnalyticsView />;
+      case 'ci_data_quality':
+        return <DataQualityDashboardView />;
+
       // Main Views
       case 'dashboard': return <DashboardView onPatientSelect={handlePatientSelect} />;
       case 'intern_dashboard': return <InternDashboardView />;
